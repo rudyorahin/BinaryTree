@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 public class DeepFind {
     public static void main(final String[] args) {
         final Path path = Paths.get(args.length < 1 ? "." : args[0]);
+        System.out.println(path);
         final File ex = findExtremeFile(path);
         System.out.printf("Starting at : %s, the largest file was found here:\n%s\n its size is: %d\n",
                 path.toAbsolutePath().toString(),
@@ -14,27 +15,30 @@ public class DeepFind {
                 ex.length());
     }
 
+    static File extreme(final File f1, final File f2) {
+        if (f2 == null) return f1;
+        else if (f1 == null) return f2;
+        else if (f2.length() > f1.length()) return f2;
+        else if (f2.length() < f1.length()) return f1;
+        else {
+            if (f2.getAbsolutePath().length() > f1.getAbsolutePath().length()) return f2;
+            else if (f2.getAbsolutePath().length() < f1.getAbsolutePath().length()) return f1;
+            else return f2;
+            }
+    }
+
     static File findExtremeFile(final Path p) {
         File result = null;
         final File[] fa = p.toFile().listFiles();
-        if (fa != null) {
+        if (fa != null && 0 < fa.length) {
             for (File file : fa) {
                 if (file.isFile()) {
-                    if (result == null || file.length() > result.length()) {
-                        result = file;
-                    } else if (file.length() == result.length()) {
-                        if (file.getPath().length() >= result.getPath().length()) {
-                            result = file;
-                        }
-                    }
-                }
-                else if (file.isDirectory()) {
+                    result = extreme(result,file);
+                } else if (file.isDirectory()) {
                     File fileDirectory = findExtremeFile(Paths.get(file.getPath()));
-                    if (result == null) {
-                        result = fileDirectory;
-                    } else if (fileDirectory != null && result.length() < fileDirectory.length())
-                        result = fileDirectory;
+                    result = extreme(result, fileDirectory);
                 }
+
             }
         }
         return result;
