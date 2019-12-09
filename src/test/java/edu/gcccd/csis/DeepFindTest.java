@@ -16,13 +16,7 @@ public class DeepFindTest {
         while(!fileList.isEmpty()){
             final File fil = fileList.remove(0);
             if (fil.isFile()) {
-                if (x == null || fil.length() > x.length()) {
-                    x = fil;
-                } else if (fil.length() == x.length()) {
-                    if (fil.getPath().length() >= x.getPath().length()) {
-                        x = fil;
-                    }
-                }
+                x = DeepFind.extreme(x, fil);
             }
             else if (fil.isDirectory()){
                 final File[] dir = fil.listFiles();
@@ -32,6 +26,19 @@ public class DeepFindTest {
             }
         }
         return x;
+    }
+    @Test
+    public void testExtreme() throws Exception {
+        // check what happens if one file is null ..
+        File f1 = null;
+        final File f2 = File.createTempFile("test2_", ".tmp");
+        f2.deleteOnExit();
+
+        assertEquals(f2, DeepFind.extreme(f1, f2));
+        assertEquals(f2, DeepFind.extreme(f2, f1));
+
+//        assertEquals(f2, DeepFind.extreme(f2, f1));
+//        assertEquals(f2, DeepFind.extreme(f1, f2));
     }
 
     @Test
